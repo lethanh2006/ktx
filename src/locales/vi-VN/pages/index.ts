@@ -17,6 +17,7 @@ import thongkebaocao from './thongkebaocao';
 import thongtinnguoihoc from './thongtinnguoihoc';
 import trangchu from './trangchu';
 import vanhoathethao from './vanhoathethao';
+import ktx from './kytucxa';
 
 export default {
 	...login,
@@ -38,6 +39,7 @@ export default {
 	...dichvuhanhchinh,
 	...sukien,
 	...diemrenluyen,
+	...ktx,
 
 	'pages.trangchu.title': 'PHÂN HỆ CÔNG TÁC SINH VIÊN',
 	'pages.trangchu.subtitle': 'HỆ THỐNG PHẦN MỀM CHỈ ĐẠO, ĐIỀU HÀNH',

@@ -840,6 +840,26 @@
 				path: 'student-approver',
 				access: 'cctFilter',
 			},
+			//Ký túc xá
+			{
+				name: 'Ký túc xá',
+				path: 'ky-tuc-xa',
+				icon: 'BuildOutlined',
+				// access: 'accessFilter',
+				// maChucNang: 'cong-can-bo|ky-tuc-xa',
+				routes: [
+					{
+						name: 'Tòa nhà',
+						path: 'toa-ky-tuc-xa',
+						component: 'KyTucXa/ToaKyTucXa',
+					},
+					{
+						name: 'Phòng',
+						path: 'phong-ky-tuc-xa',
+						component: 'KyTucXa/PhongKyTucXa',
+					},
+				],
+			},
 		],
 	},
 
