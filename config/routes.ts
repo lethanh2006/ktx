@@ -858,6 +858,11 @@
 						path: 'phong-ky-tuc-xa',
 						component: 'KyTucXa/PhongKyTucXa',
 					},
+					{
+						name: 'Đợt đăng ký',
+						path: 'dot-dang-ky',
+						component: 'KyTucXa/DotDangKy',
+					}
 				],
 			},
 		],
