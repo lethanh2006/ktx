@@ -1,49 +1,6 @@
-import type { ETrangThaiDotDangKyKTX, ETrangThaiPhong, ETrangThaiSinhVienKTX } from './constant';
+import type { ETrangThaiDotDangKyKTX, ETrangThaiPhong, ETrangThaiSinhVienKTX, EGioiTinh, ELoaiKhoanThu } from './constant';
 
 declare module KyTucXa {
-	export interface DotKyTucXa {
-		_id: string;
-		tenDot: string;
-		ngayBatDau: Date;
-		ngayKetThuc: Date;
-		maHocKy: string;
-		hocKy?: HocKy.IRecord;
-		tenHocKy: string;
-		trangThai: ETrangThaiDotDangKyKTX;
-		ghiChu: string;
-
-		idDotThu?: string;
-	}
-
-	export interface ISinhVienDot {
-		_id: string;
-		idDotDangKy: string;
-		sinhVienSsoId: string;
-		maSinhVien: string;
-		tenSinhVien: string;
-		tenLopHanhChinh: string;
-		soDienThoai: string;
-
-		thoiGianBatDau?: Date;
-		thoiGianKetThuc?: Date;
-		// maPhongHienTai: string;
-		maPhongDangKy?: string;
-		phongKTX?: PhongKyTucXa.IRecord;
-		trangThaiDuyet: ETrangThaiSinhVienKTX;
-		ghiChu?: string;
-
-		trangThaiThanhToan?: ETrangThaiThanhToan;
-		billIdentityCode?: string;
-	}
-
-	export type TDuyetSinhVienKTX = {
-		dangSachSinhVienDangKyId: string[];
-		maPhongDangKy: string;
-		thoiGianBatDau: Date;
-		thoiGianKetThuc: Date;
-		trangThaiDuyet: ETrangThaiSinhVienKTX;
-	};
-
 	export interface IToaNhaKyTucXa {
 		_id: string;
 		ma: string;
@@ -54,10 +11,33 @@ declare module KyTucXa {
 	export interface IPhongKyTucXa {
 		_id: string;
 		ma: string;
-		soGiuong: number;
-		soTang: number;
-		maToaNha: string;
-		toaNha?: IToaNha;
-		trangThai: ETrangThaiPhong;
+		ten?: string;
+
+		maGioiTinh?: EGioiTinh | string;
+		soLuongToiDa?: number;
+		soLuongHienTai?: number;
+		cachBoTri?: string;
+		maKhoanThuPhong?: string;
+		maKhoanThuCoc?: string;
+		danhSachTienIch?: { ten: string; moTa?: string }[];
+		moTa?: string;
+		danhSachAnh?: string[];
+		maToaNha?: string;
+	}
+
+	export interface IKhoanThuKTX {
+		_id: string;
+		maNamHoc: string;
+		ten: string;
+		loai: ELoaiKhoanThu;
+		maDoiTuong: string;
+		unitLabel: string;
+		maMucThu: string;
+		tenMucThu: string;
+		unitAmount: number;
+		currency: string;
+		cauHinh: {
+			loaiDinhKy: ELoaiDinhKy;
+		};
 	}
 }

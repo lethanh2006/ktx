@@ -849,20 +849,10 @@
 				// maChucNang: 'cong-can-bo|ky-tuc-xa',
 				routes: [
 					{
-						name: 'Tòa nhà',
-						path: 'toa-ky-tuc-xa',
-						component: 'KyTucXa/ToaKyTucXa',
-					},
-					{
 						name: 'Phòng',
 						path: 'phong-ky-tuc-xa',
 						component: 'KyTucXa/PhongKyTucXa',
 					},
-					{
-						name: 'Đợt đăng ký',
-						path: 'dot-dang-ky',
-						component: 'KyTucXa/DotDangKy',
-					}
 				],
 			},
 		],

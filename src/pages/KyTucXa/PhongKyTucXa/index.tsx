@@ -1,11 +1,9 @@
 import TableBase from '@/components/Table';
 import { type IColumn } from '@/components/Table/typing';
-import { ETrangThaiPhong } from '@/services/KyTucXa/constant';
 import type { KyTucXa } from '@/services/KyTucXa/typing';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import { Button, Popconfirm, Tag, Tooltip } from 'antd';
+import { Button, Popconfirm, Tooltip } from 'antd';
 import { useIntl, useModel } from 'umi';
-import SelectToaKyTucXa from '../ToaKyTucXa/components/Select';
 import Form from './components/Form';
 
 const PhongKyTucXaPage = () => {
@@ -14,14 +12,6 @@ const PhongKyTucXaPage = () => {
 
 	const columns: IColumn<KyTucXa.IPhongKyTucXa>[] = [
 		{
-			title: 'Tòa nhà',
-			dataIndex: 'maToaNha',
-			width: 150,
-			filterType: 'customselect',
-			filterCustomSelect: <SelectToaKyTucXa selectMa multiple />,
-			render: (val, rec) => rec.toaNha?.ten ?? val,
-		},
-		{
 			title: 'Mã phòng',
 			dataIndex: 'ma',
 			width: 100,
@@ -29,27 +19,43 @@ const PhongKyTucXaPage = () => {
 			filterType: 'string',
 		},
 		{
-			title: 'Số lượng tối đa',
-			dataIndex: 'soGiuong',
-			align: 'center',
-			width: 100,
+			title: 'Tên phòng',
+			dataIndex: 'ten',
+			width: 150,
 			sortable: true,
 		},
 		{
-			title: 'Tầng thứ',
-			dataIndex: 'soTang',
-			width: 100,
-			sortable: true,
+			title: 'Tòa nhà',
+			dataIndex: 'maToaNha',
+			width: 120,
 		},
 		{
-			title: 'Trạng thái',
-			dataIndex: 'trangThai',
-			width: 100,
+			title: 'Sức chứa',
+			dataIndex: 'soLuongToiDa',
 			align: 'center',
-			filterType: 'select',
-			filterData: Object.values(ETrangThaiPhong),
-			render: (val: ETrangThaiPhong) =>
-				val && <Tag color={val === ETrangThaiPhong.BAO_TRI ? 'orange' : 'green'}>{val}</Tag>,
+			width: 100,
+		},
+		{
+			title: 'Đang ở',
+			dataIndex: 'soLuongHienTai',
+			align: 'center',
+			width: 100,
+		},
+		{
+			title: 'Giới tính',
+			dataIndex: 'maGioiTinh',
+			align: 'center',
+			width: 100,
+		},
+		{
+			title: 'Mã thu phòng',
+			dataIndex: 'maKhoanThuPhong',
+			width: 130,
+		},
+		{
+			title: 'Mã thu cọc',
+			dataIndex: 'maKhoanThuCoc',
+			width: 130,
 		},
 		{
 			title: 'Thao tác',
@@ -64,7 +70,7 @@ const PhongKyTucXaPage = () => {
 					<Tooltip title='Xóa'>
 						<Popconfirm
 							onConfirm={() => deleteModel(record._id, getModel)}
-							title='Bạn có chắc chắn muốn xóa tòa ký túc xá này?'
+							title='Bạn có chắc chắn muốn xóa phòng ký túc xá này?'
 							placement='topRight'
 						>
 							<Button danger type='link' icon={<DeleteOutlined />} />
