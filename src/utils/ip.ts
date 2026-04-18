@@ -3,8 +3,9 @@ import { AppModules, EModuleKey } from '@/services/base/constant';
 const ipRoot = APP_CONFIG_IP_ROOT; // ip dev
 
 // Ip Chính => Mặc định dùng trong các useInitModel
-const ip3 = ipRoot + 'slink'; // ip dev
+// const ip3 = ipRoot + 'slink'; // ip dev
 // const ip3 = 'http://192.168.1.38:3000'; // ip dev
+const ip3 = 'https://ais.aisenote.com/ript/csvc'; 
 
 // Ip khác
 const ipNotif = ipRoot + 'notification'; // ip dev

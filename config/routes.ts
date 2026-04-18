@@ -840,6 +840,20 @@
 				path: 'student-approver',
 				access: 'cctFilter',
 			},
+			{
+				name: 'Ký túc xá',
+				path: 'ky-tuc-xa',
+				icon: 'BuildOutlined',
+				// access: 'accessFilter',
+				// maChucNang: 'cong-can-bo|ky-tuc-xa',
+				routes: [
+				{
+					name: 'Đợt đăng ký',
+					path: 'dot-dang-ky',
+					component: 'KyTucXa/DotDangKy',
+				}
+				],
+			},
 		],
 	},
 
