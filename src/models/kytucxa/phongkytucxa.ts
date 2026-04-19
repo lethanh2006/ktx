@@ -5,7 +5,7 @@ import { ipCsvc } from '@/utils/ip';
 import { message } from 'antd';
 
 export default () => {
-	const objInit = useInitModel<KyTucXa.IPhongKyTucXa>('phong/ktx', undefined, undefined, ipCsvc);
+	const objInit = useInitModel<KyTucXa.IPhongKyTucXa>('phong/ktx/page', undefined, undefined, ipCsvc);
 
 	const getModel: typeof objInit.getModel = async (
 		paramCondition,
@@ -20,16 +20,19 @@ export default () => {
 		selectParams,
 		config,
 	) => {
+		const mergedCondition = { ...paramCondition };
+		const conditionStr = Object.keys(mergedCondition).length > 0 ? JSON.stringify(mergedCondition) : undefined;
+
 		return objInit.getModel(
-			paramCondition,
+			undefined,
 			filterParams,
 			sortParam,
 			paramPage,
 			paramLimit,
-			path || 'phong/ktx', // Use explicit path
-			otherQuery,
+			path || 'phong/ktx',
+			{ condition: conditionStr, ...(otherQuery ?? {}) },
 			isSetDanhSach,
-			isAbsolutePath !== undefined ? isAbsolutePath : !path, // Activate absolute path fallback
+			isAbsolutePath !== undefined ? isAbsolutePath : !path,
 			selectParams,
 			config,
 		);
@@ -87,8 +90,6 @@ export default () => {
 		if (objInit.formSubmiting) return Promise.reject('Form submiting');
 		objInit.setFormSubmiting(true);
 		try {
-			// POST lên endpoint 'phong' thay vì 'phong/ktx' gốc
-			// Ép thêm cờ isKyTucXa = true để backend biết đây là phòng KTX
 			const res = await axios.post(
 				`${ipCsvc}/phong`,
 				{ ...payload, isKyTucXa: true },
@@ -99,7 +100,7 @@ export default () => {
 			message.success(messageText ?? 'Thêm mới thành công');
 			objInit.setLoading(false);
 			if (getData) getData();
-			else getModel(); // Gọi lại getModel đã override ở trên
+			else getModel();
 			if (closeModal !== false) objInit.setVisibleForm(false);
 
 			return res.data?.data;

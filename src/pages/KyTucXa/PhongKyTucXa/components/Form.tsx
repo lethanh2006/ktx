@@ -30,7 +30,7 @@ const FormPhongKyTucXa = (props: any) => {
 
 	const onFinish = async (values: KyTucXa.IPhongKyTucXa) => {
 		if (edit) {
-			putModel(record?._id ?? '', values)
+			putModel(record?.ma ?? record?._id ?? '', values)
 				.then()
 				.catch((er) => console.log(er));
 		} else
@@ -42,36 +42,47 @@ const FormPhongKyTucXa = (props: any) => {
 		<Card title={`${edit ? 'Chỉnh sửa' : 'Thêm mới'} ${title?.toLowerCase()}`}>
 			<Form onFinish={onFinish} form={form} layout='vertical'>
 				<Row gutter={[12, 0]} style={{ marginBottom: 12 }}>
-					<Col xs={24} md={12}>
-						<Form.Item name='ma' label='Mã phòng'>
-							<Input disabled={isView} style={{ width: '100%' }} placeholder='Nhập mã phòng' />
-						</Form.Item>
-					</Col>
-					<Col xs={24} md={12}>
-						<Form.Item name='ten' label='Tên phòng'>
-							<Input disabled={isView} style={{ width: '100%' }} placeholder='Nhập tên phòng' />
-						</Form.Item>
-					</Col>
-					<Col xs={24} md={12}>
-						<Form.Item name='maGioiTinh' label='Giới tính' rules={[...rules.required]}>
-							<Select disabled={isView} placeholder='Chọn giới tính' options={[
-								{ value: EGioiTinh.NAM, label: 'Nam' },
-								{ value: EGioiTinh.NU, label: 'Nữ' },
-							]} />
-						</Form.Item>
-					</Col>
-					<Col xs={24} md={12}>
-						<Form.Item name='maToaNha' label='Tòa nhà'>
-							<Select
-								disabled={isView}
-								placeholder='Chọn tòa'
-								options={danhSachToa?.map((item: any) => ({
-									value: item?.ma || item?._id,
-									label: item?.ten,
-								}))}
-							/>
-						</Form.Item>
-					</Col>
+					{!edit && (
+						<>
+							<Col xs={24} md={12}>
+								<Form.Item name='ma' label='Mã phòng' rules={[...rules.required]}>
+									<Input style={{ width: '100%' }} placeholder='Nhập mã phòng (ví dụ: B1-101)' />
+								</Form.Item>
+							</Col>
+							<Col xs={24} md={12}>
+								<Form.Item name='ten' label='Tên phòng'>
+									<Input style={{ width: '100%' }} placeholder='Nhập tên phòng' />
+								</Form.Item>
+							</Col>
+							<Col xs={24} md={12}>
+								<Form.Item name='maGioiTinh' label='Giới tính' rules={[...rules.required]}>
+									<Select placeholder='Chọn giới tính' options={[
+										{ value: EGioiTinh.NAM, label: 'Nam' },
+										{ value: EGioiTinh.NU, label: 'Nữ' },
+									]} />
+								</Form.Item>
+							</Col>
+							<Col xs={24} md={12}>
+								<Form.Item name='maToaNha' label='Tòa nhà'>
+									<Select
+										placeholder='Chọn tòa'
+										options={danhSachToa?.map((item: any) => ({
+											value: item?.ma || item?._id,
+											label: item?.ten,
+										}))}
+									/>
+								</Form.Item>
+							</Col>
+						</>
+					)}
+					{edit && (
+						<Col xs={24}>
+							<div style={{ marginBottom: 12, padding: '8px 12px', background: '#f5f5f5', borderRadius: 6 }}>
+								<span style={{ fontWeight: 500 }}>Phòng: </span>{record?.ma}{record?.ten ? ` — ${record.ten}` : ''}
+								{record?.maToaNha && <span style={{ marginLeft: 16 }}><span style={{ fontWeight: 500 }}>Tòa: </span>{record.maToaNha}</span>}
+							</div>
+						</Col>
+					)}
 					<Col xs={24} md={12}>
 						<Form.Item name='soLuongToiDa' label='Số lượng tối đa' rules={[...rules.required]}>
 							<InputNumber disabled={isView} min={1} style={{ width: '100%' }} placeholder='Nhập số lượng tối đa' />

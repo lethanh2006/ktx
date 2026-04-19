@@ -853,6 +853,11 @@
 						path: 'phong-ky-tuc-xa',
 						component: 'KyTucXa/PhongKyTucXa',
 					},
+					{
+						name: 'Quy tắc đăng ký',
+						path: 'quy-tac-dang-ky',
+						component: 'KyTucXa/RuleDangKy',
+					},
 				],
 			},
 		],
