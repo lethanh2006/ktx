@@ -1,26 +1,23 @@
-import { EGioiTinh, ELoaiKhoanThu } from '@/services/KyTucXa/constant';
 import type { KyTucXa } from '@/services/KyTucXa/typing';
 import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
-import { Button, Card, Col, Form, Input, InputNumber, Row, Select } from 'antd';
+import { Button, Card, Col, Form, Input, InputNumber, Row } from 'antd';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import UploadFile from '@/components/Upload/UploadFile';
 import { useEffect } from 'react';
 import { useIntl, useModel } from 'umi';
+import { buildUpLoadMultiFile } from '@/services/uploadFile';
+import SelectKhoanThu from './SelectKhoanThu';
 
 const FormPhongKyTucXa = (props: any) => {
 	const intl = useIntl();
 	const [form] = Form.useForm();
+	const { title } = props;
 	const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } =
 		useModel('kytucxa.phongkytucxa');
-	const { danhSach: danhSachToa, getAllModel: getAllToa } = useModel('kytucxa.toakytucxa');
-	const { danhSach: danhSachKhoanThu, getAllModel: getAllKhoanThu } = useModel('kytucxa.khoanthuktx');
-	const { title } = props;
 
 	useEffect(() => {
 		if (visibleForm) {
-			getAllToa();
-			getAllKhoanThu();
 			if (record?._id) form.setFieldsValue(record);
 			else resetFieldsForm(form);
 		}
@@ -29,52 +26,24 @@ const FormPhongKyTucXa = (props: any) => {
 	const isView = false;
 
 	const onFinish = async (values: KyTucXa.IPhongKyTucXa) => {
-		if (edit) {
-			putModel(record?.ma ?? record?._id ?? '', values)
-				.then()
-				.catch((er) => console.log(er));
-		} else
-			postModel(values)
-				.then()
-				.catch((er) => console.log(er));
+		try {
+			const danhSachAnh = await buildUpLoadMultiFile(values, 'danhSachAnh');
+			const finalValues = { ...values, danhSachAnh: danhSachAnh ?? [] };
+
+			if (edit) {
+				await putModel(record?.ma ?? record?._id ?? '', finalValues);
+			} else {
+				await postModel(finalValues);
+			}
+		} catch (er) {
+			console.log(er);
+		}
 	};
+	
 	return (
 		<Card title={`${edit ? 'Chỉnh sửa' : 'Thêm mới'} ${title?.toLowerCase()}`}>
 			<Form onFinish={onFinish} form={form} layout='vertical'>
 				<Row gutter={[12, 0]} style={{ marginBottom: 12 }}>
-					{!edit && (
-						<>
-							<Col xs={24} md={12}>
-								<Form.Item name='ma' label='Mã phòng' rules={[...rules.required]}>
-									<Input style={{ width: '100%' }} placeholder='Nhập mã phòng (ví dụ: B1-101)' />
-								</Form.Item>
-							</Col>
-							<Col xs={24} md={12}>
-								<Form.Item name='ten' label='Tên phòng'>
-									<Input style={{ width: '100%' }} placeholder='Nhập tên phòng' />
-								</Form.Item>
-							</Col>
-							<Col xs={24} md={12}>
-								<Form.Item name='maGioiTinh' label='Giới tính' rules={[...rules.required]}>
-									<Select placeholder='Chọn giới tính' options={[
-										{ value: EGioiTinh.NAM, label: 'Nam' },
-										{ value: EGioiTinh.NU, label: 'Nữ' },
-									]} />
-								</Form.Item>
-							</Col>
-							<Col xs={24} md={12}>
-								<Form.Item name='maToaNha' label='Tòa nhà'>
-									<Select
-										placeholder='Chọn tòa'
-										options={danhSachToa?.map((item: any) => ({
-											value: item?.ma || item?._id,
-											label: item?.ten,
-										}))}
-									/>
-								</Form.Item>
-							</Col>
-						</>
-					)}
 					{edit && (
 						<Col xs={24}>
 							<div style={{ marginBottom: 12, padding: '8px 12px', background: '#f5f5f5', borderRadius: 6 }}>
@@ -95,30 +64,12 @@ const FormPhongKyTucXa = (props: any) => {
 					</Col>
 					<Col xs={24} md={12}>
 						<Form.Item name='maKhoanThuPhong' label='Bảng giá phí phòng'>
-							<Select
-								disabled={isView}
-								placeholder='Chọn khoản thu phòng'
-								options={danhSachKhoanThu
-									?.filter((item: any) => item?.loai === ELoaiKhoanThu.KTX)
-									?.map((item: any) => ({
-										value: item?._id,
-										label: item?.ten,
-									}))}
-							/>
+							<SelectKhoanThu/>
 						</Form.Item>
 					</Col>
 					<Col xs={24} md={12}>
 						<Form.Item name='maKhoanThuCoc' label='Bảng giá phí cọc'>
-							<Select
-								disabled={isView}
-								placeholder='Chọn khoản thu cọc'
-								options={danhSachKhoanThu
-									?.filter((item: any) => item?.loai === ELoaiKhoanThu.KTX)
-									?.map((item: any) => ({
-										value: item?._id,
-										label: item?.ten,
-									}))}
-							/>
+							<SelectKhoanThu/>
 						</Form.Item>
 					</Col>
 					<Col xs={24}>
@@ -190,7 +141,6 @@ const FormPhongKyTucXa = (props: any) => {
 						</Form.Item>
 					</Col>
 				</Row>
-
 				<div className='form-footer'>
 					<Button loading={formSubmiting} htmlType='submit' type='primary'>
 						{!edit

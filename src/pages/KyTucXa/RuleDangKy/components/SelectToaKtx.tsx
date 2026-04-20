@@ -5,7 +5,7 @@ import { useModel } from 'umi';
 /**
  * Secect Căn cứ pháp lý để cho vào FormItem
  */
-const SelectPhongKyTucXa = (props: {
+const SelectToaKtx = (props: {
 	value?: string;
 	onChange?: (id: string) => void;
 	multiple?: boolean;
@@ -16,7 +16,7 @@ const SelectPhongKyTucXa = (props: {
 	selectMa?: boolean;
 }) => {
 	const { value, onChange, multiple, condition, allowClear, style, isSetRecord } = props;
-	const { danhSach, getAllModel, setRecord, loading } = useModel('kytucxa.phongkytucxa');
+	const { danhSach, getAllModel, setRecord, loading } = useModel('kytucxa.toakytucxa');
 
 	useEffect(() => {
 		getAllModel(isSetRecord, undefined, condition).then(() => {
@@ -32,11 +32,11 @@ const SelectPhongKyTucXa = (props: {
 			options={danhSach.map((item) => ({
 				key: item._id,
 				value: item.ma,
-				label: `${item.ma} - ${item.toaNha?.ten ?? ''}`,
+				label: `${item.ten}`,
 			}))}
 			showSearch
 			optionFilterProp='label'
-			placeholder='Chọn phòng ký túc xá'
+			placeholder='Chọn tòa túc xá'
 			allowClear={allowClear ?? false}
 			style={{ width: '100%', ...style }}
 			showArrow
@@ -45,4 +45,4 @@ const SelectPhongKyTucXa = (props: {
 	);
 };
 
-export default SelectPhongKyTucXa;
+export default SelectToaKtx;

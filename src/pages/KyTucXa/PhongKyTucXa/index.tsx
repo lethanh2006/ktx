@@ -4,11 +4,17 @@ import type { KyTucXa } from '@/services/KyTucXa/typing';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { Button, Popconfirm, Tooltip } from 'antd';
 import { useIntl, useModel } from 'umi';
+import { useEffect } from 'react';
 import Form from './components/Form';
 
 const PhongKyTucXaPage = () => {
 	const intl = useIntl();
 	const { getModel, page, limit, deleteModel, handleEdit } = useModel('kytucxa.phongkytucxa');
+	const { danhSach: danhSachKhoanThu, getAllModel: getAllKhoanThu } = useModel('kytucxa.khoanthuktx');
+
+	useEffect(() => {
+		getAllKhoanThu();
+	}, []);
 
 	const columns: IColumn<KyTucXa.IPhongKyTucXa>[] = [
 		{
@@ -48,14 +54,16 @@ const PhongKyTucXaPage = () => {
 			width: 100,
 		},
 		{
-			title: 'Mã thu phòng',
+			title: 'Tên khoản thu phòng',
 			dataIndex: 'maKhoanThuPhong',
 			width: 130,
+			render: (val) => danhSachKhoanThu?.find((item: any) => item?._id === val)?.ten || val,
 		},
 		{
-			title: 'Mã thu cọc',
+			title: 'Tên khoản thu cọc',
 			dataIndex: 'maKhoanThuCoc',
 			width: 130,
+			render: (val) => danhSachKhoanThu?.find((item: any) => item?._id === val)?.ten || val,
 		},
 		{
 			title: 'Thao tác',
@@ -90,7 +98,7 @@ const PhongKyTucXaPage = () => {
 			Form={Form}
 			rowSelection
 			deleteMany
-			buttons={{ import: true, export: true }}
+			buttons={{ import: true, export: true, create: false }}
 		/>
 	);
 };

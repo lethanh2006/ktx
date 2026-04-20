@@ -1,6 +1,6 @@
 import TableBase from '@/components/Table';
 import { type IColumn } from '@/components/Table/typing';
-import { ERuleType, transRuleType } from '@/services/KyTucXa/constant';
+import { ERuleType, colorRuleType, transRuleType } from '@/services/KyTucXa/constant';
 import type { KyTucXa } from '@/services/KyTucXa/typing';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { Button, Popconfirm, Switch, Tag, Tooltip } from 'antd';
@@ -9,13 +9,6 @@ import Form from './components/Form';
 
 const RuleDangKyPage = () => {
 	const { getModel, page, limit, deleteModel, handleEdit, putModel } = useModel('kytucxa.dangkythuerule');
-
-	const colorLoai: Record<ERuleType, string> = {
-		[ERuleType.GIOI_TINH]: 'blue',
-		[ERuleType.MAX_PER_KHOA]: 'purple',
-		[ERuleType.MIN_AGE]: 'orange',
-		[ERuleType.MAX_AGE]: 'volcano',
-	};
 
 	const columns: IColumn<KyTucXa.IDangKyThueRule>[] = [
 		{
@@ -44,7 +37,7 @@ const RuleDangKyPage = () => {
 			filterType: 'select',
 			filterData: Object.values(ERuleType),
 			render: (val: ERuleType) =>
-				val && <Tag color={colorLoai[val]}>{transRuleType[val] ?? val}</Tag>,
+				val && <Tag color={colorRuleType[val]}>{transRuleType[val] ?? val}</Tag>,
 		},
 		{
 			title: 'Tòa áp dụng',
@@ -55,19 +48,6 @@ const RuleDangKyPage = () => {
 			title: 'Phòng áp dụng',
 			dataIndex: 'maPhong',
 			width: 130,
-		},
-		{
-			title: 'Giá trị',
-			dataIndex: 'giaTri',
-			width: 160,
-			render: (val: any, record) => {
-				if (!val) return '—';
-				if (record.loai === ERuleType.GIOI_TINH) return val.gioiTinh;
-				if (record.loai === ERuleType.MAX_PER_KHOA) return `Max ${val.maxPerKhoa} SV/khoa`;
-				if (record.loai === ERuleType.MIN_AGE) return `Tuổi ≥ ${val.minAge}`;
-				if (record.loai === ERuleType.MAX_AGE) return `Tuổi ≤ ${val.maxAge}`;
-				return JSON.stringify(val);
-			},
 		},
 		{
 			title: 'Kích hoạt',

@@ -38,3 +38,10 @@ export const transRuleType: Record<ERuleType, string> = {
 	[ERuleType.MIN_AGE]: 'Tuổi tối thiểu',
 	[ERuleType.MAX_AGE]: 'Tuổi tối đa',
 };
+
+export const colorRuleType: Record<ERuleType, string> = {
+	[ERuleType.GIOI_TINH]: 'blue',
+	[ERuleType.MAX_PER_KHOA]: 'purple',
+	[ERuleType.MIN_AGE]: 'orange',
+	[ERuleType.MAX_AGE]: 'volcano',
+};

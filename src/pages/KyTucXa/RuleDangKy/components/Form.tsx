@@ -1,59 +1,74 @@
 import { EGioiTinh, ERuleType, transRuleType } from '@/services/KyTucXa/constant';
-import type { KyTucXa } from '@/services/KyTucXa/typing';
 import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
 import { Button, Card, Col, Form, Input, InputNumber, Row, Select, Switch } from 'antd';
 import { useEffect } from 'react';
 import { useIntl, useModel } from 'umi';
+import SelectPhongKyTucXa from './SelectPhongKtx';
+import SelectToaKtx from './SelectToaKtx';
 
 const FormRuleDangKy = (props: any) => {
 	const intl = useIntl();
 	const [form] = Form.useForm();
+	const { title } = props;
 	const { record, setVisibleForm, edit, postModel, putModel, formSubmiting, visibleForm } =
 		useModel('kytucxa.dangkythuerule');
-	const { danhSach: danhSachToa, getAllModel: getAllToa } = useModel('kytucxa.toakytucxa');
-	const { danhSach: danhSachPhong, getAllModel: getAllPhong } = useModel('kytucxa.phongkytucxa');
-	const { title } = props;
+
+	const RULE_FIELD_MAP: Record<string, string> = {
+		[ERuleType.GIOI_TINH]: 'gioiTinh',
+		[ERuleType.MAX_PER_KHOA]: 'maxPerKhoa',
+		[ERuleType.MIN_AGE]: 'minAge',
+		[ERuleType.MAX_AGE]: 'maxAge',
+	};
 
 	const selectedLoai = Form.useWatch('loai', form);
 
 	useEffect(() => {
 		if (visibleForm) {
-			getAllToa();
-			getAllPhong();
-			if (record?._id) {
-				form.setFieldsValue({
-					...record,
-					...(record.giaTri ?? {}),
-				});
-			} else {
-				resetFieldsForm(form);
-				form.setFieldsValue({ isActive: true });
-			}
+			if (record?._id) form.setFieldsValue(record);
+			else resetFieldsForm(form);
 		}
 	}, [record?._id, visibleForm]);
 
 	const onFinish = async (values: any) => {
-		const { gioiTinh, maxPerKhoa, minAge, maxAge, ...rest } = values;
+		const { gioiTinh, maxPerKhoa, minAge, maxAge, loai, ...rest } = values;
+		const ruleValues: Record<string, any> = { gioiTinh, maxPerKhoa, minAge, maxAge };
+		const loaiArr = Array.isArray(loai) ? loai : (loai ? [loai] : []);
 
-		let giaTri: any = {};
-		if (rest.loai === ERuleType.GIOI_TINH) giaTri = { gioiTinh };
-		else if (rest.loai === ERuleType.MAX_PER_KHOA) giaTri = { maxPerKhoa };
-		else if (rest.loai === ERuleType.MIN_AGE) giaTri = { minAge };
-		else if (rest.loai === ERuleType.MAX_AGE) giaTri = { maxAge };
+		const getPayload = (ruleType: ERuleType) => {
+			const fieldName = RULE_FIELD_MAP[ruleType as string];
+			return {
+				...rest,
+				loai: ruleType,
+				giaTri: fieldName ? { [fieldName]: ruleValues[fieldName] } : {},
+			};
+		};
 
-		const payload: Partial<KyTucXa.IDangKyThueRule> = { ...rest, giaTri };
-
-		if (edit) {
-			putModel(record?._id ?? '', payload)
-				.then()
-				.catch((er) => console.log(er));
-		} else {
-			postModel(payload)
-				.then()
-				.catch((er) => console.log(er));
+		try {
+			if (edit) {
+				await putModel(record?._id ?? '', getPayload(loaiArr[0]));
+			} else {
+				await Promise.all(loaiArr.map((l: ERuleType) => postModel(getPayload(l))));
+			}
+		} catch (er) {
+			console.log(er);
 		}
 	};
+
+	const handleChangeLoai = (selectedValues: ERuleType[]) => {
+		const removedFields = Object.entries(RULE_FIELD_MAP)
+			.filter(([type]) => !selectedValues.includes(type as ERuleType))
+			.map(([, fieldName]) => fieldName);
+
+		if (removedFields.length > 0) {
+			form.resetFields(removedFields);
+		}
+	};
+
+	const ruleTypeOptions = Object.values(ERuleType).map((v) => ({
+		value: v,
+		label: transRuleType[v],
+	}));
 
 	return (
 		<Card title={`${edit ? 'Chỉnh sửa' : 'Thêm mới'} ${title?.toLowerCase()}`}>
@@ -61,7 +76,7 @@ const FormRuleDangKy = (props: any) => {
 				<Row gutter={[12, 0]}>
 					<Col xs={24} md={12}>
 						<Form.Item name='ma' label='Mã rule' rules={[...rules.required]}>
-							<Input disabled={edit} placeholder='Ví dụ: RULE-GIOI-TINH-B1' />
+							<Input placeholder='Ví dụ: RULE-GIOI-TINH-B1' />
 						</Form.Item>
 					</Col>
 					<Col xs={24} md={12}>
@@ -73,14 +88,10 @@ const FormRuleDangKy = (props: any) => {
 					<Col xs={24} md={12}>
 						<Form.Item name='loai' label='Loại rule' rules={[...rules.required]}>
 							<Select
+								mode='multiple'
 								placeholder='Chọn loại rule'
-								options={Object.values(ERuleType).map((v) => ({
-									value: v,
-									label: transRuleType[v],
-								}))}
-								onChange={() => {
-									form.resetFields(['gioiTinh', 'maxPerKhoa', 'minAge', 'maxAge']);
-								}}
+								options={ruleTypeOptions}
+								onChange={handleChangeLoai}
 							/>
 						</Form.Item>
 					</Col>
@@ -92,30 +103,15 @@ const FormRuleDangKy = (props: any) => {
 
 					<Col xs={24} md={12}>
 						<Form.Item name='maToaNha' label='Áp dụng cho tòa'>
-							<Select
-								allowClear
-								placeholder='Chọn tòa (để trống = áp dụng tất cả)'
-								options={danhSachToa?.map((item: any) => ({
-									value: item?.ma,
-									label: item?.ten,
-								}))}
-							/>
+							<SelectToaKtx/>
 						</Form.Item>
 					</Col>
 					<Col xs={24} md={12}>
 						<Form.Item name='maPhong' label='Áp dụng cho phòng cụ thể'>
-							<Select
-								allowClear
-								placeholder='Chọn phòng (để trống = áp dụng cả tòa)'
-								options={danhSachPhong?.map((item: any) => ({
-									value: item?.ma,
-									label: `${item?.ma}${item?.ten ? ` — ${item.ten}` : ''}`,
-								}))}
-							/>
+							<SelectPhongKyTucXa/>
 						</Form.Item>
 					</Col>
-
-					{selectedLoai === ERuleType.GIOI_TINH && (
+					{selectedLoai?.includes?.(ERuleType.GIOI_TINH) && (
 						<Col xs={24} md={12}>
 							<Form.Item name='gioiTinh' label='Giới tính cho phép' rules={[...rules.required]}>
 								<Select
@@ -128,30 +124,29 @@ const FormRuleDangKy = (props: any) => {
 							</Form.Item>
 						</Col>
 					)}
-					{selectedLoai === ERuleType.MAX_PER_KHOA && (
+					{selectedLoai?.includes?.(ERuleType.MAX_PER_KHOA) && (
 						<Col xs={24} md={12}>
-							<Form.Item name='maxPerKhoa' label='Số SV tối đa mỗi khoa' rules={[...rules.required]}>
+							<Form.Item name={['giaTri', 'maxPerKhoa']} label='Số SV tối đa mỗi khoa' rules={[...rules.required]}>
 								<InputNumber min={1} style={{ width: '100%' }} placeholder='Ví dụ: 2' />
 							</Form.Item>
 						</Col>
 					)}
-					{selectedLoai === ERuleType.MIN_AGE && (
+					{selectedLoai?.includes?.(ERuleType.MIN_AGE) && (
 						<Col xs={24} md={12}>
 							<Form.Item name='minAge' label='Tuổi tối thiểu' rules={[...rules.required]}>
 								<InputNumber min={0} style={{ width: '100%' }} placeholder='Ví dụ: 18' />
 							</Form.Item>
 						</Col>
 					)}
-					{selectedLoai === ERuleType.MAX_AGE && (
+					{selectedLoai?.includes?.(ERuleType.MAX_AGE) && (
 						<Col xs={24} md={12}>
 							<Form.Item name='maxAge' label='Tuổi tối đa' rules={[...rules.required]}>
 								<InputNumber min={0} style={{ width: '100%' }} placeholder='Ví dụ: 30' />
 							</Form.Item>
 						</Col>
 					)}
-
 					<Col xs={24} md={12}>
-						<Form.Item name='noiDungLyDo' label='Nội dung lý do từ chối'>
+						<Form.Item name='noiDungLyDo' label='Nội dung lý do'>
 							<Input placeholder='Ví dụ: Phòng dành cho sinh viên Nam' />
 						</Form.Item>
 					</Col>
@@ -161,7 +156,6 @@ const FormRuleDangKy = (props: any) => {
 						</Form.Item>
 					</Col>
 				</Row>
-
 				<div className='form-footer'>
 					<Button loading={formSubmiting} htmlType='submit' type='primary'>
 						{!edit
