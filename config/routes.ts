@@ -1,4 +1,4 @@
-﻿export default [
+export default [
 	{
 		path: '/user',
 		layout: false,
@@ -848,6 +848,11 @@
 				// access: 'accessFilter',
 				// maChucNang: 'cong-can-bo|ky-tuc-xa',
 				routes: [
+					{
+						name: 'Cấu hình khoản thu',
+						path: 'cau-hinh-khoan-thu',
+						component: 'KyTucXa/CauHinhKhoanThu',
+					},
 					{
 						name: 'Phòng',
 						path: 'phong-ky-tuc-xa',

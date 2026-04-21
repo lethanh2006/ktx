@@ -12,6 +12,7 @@ const ipDaoTao = ipRoot + 'qldt';
 const ipNhanSu = ipRoot + 'tcns';
 const ipCore = ipRoot + 'core';
 const ipTaiChinh = ipRoot + 'tai-chinh-api-v2';
+const ipTc = ipRoot + 'tai-chinh';
 const ipSlink = ipRoot + 'slink'; // ip dev
 const ipCCT = ipRoot + 'co-curriculum'; // ip dev
 const ipCsvc = ipRoot + 'csvc';
@@ -44,6 +45,7 @@ export {
 	ipNotif,
 	ipSlink,
 	ipTaiChinh,
+	ipTc,
 	keycloakAuthEndpoint,
 	keycloakAuthority,
 	keycloakClientID,

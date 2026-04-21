@@ -36,9 +36,26 @@ declare module KyTucXa {
 		tenMucThu: string;
 		unitAmount: number;
 		currency: string;
-		cauHinh: {
-			loaiDinhKy: ELoaiDinhKy;
-		};
+	}
+
+	export interface INamHoc {
+		_id: string;
+		ma: string;
+		ten: string;
+		thoiGianBatDau: string;
+	}
+
+	export interface IUnitLabel {
+		_id: string;
+		ma: string;
+		donViTinh: string;
+	}
+
+	export interface IMucThu {
+		_id: string;
+		ma: string;
+		name: string;
+		unitAmount: number;
 	}
 
 	export interface IDangKyThueRule {

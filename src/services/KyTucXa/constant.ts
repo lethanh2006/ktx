@@ -45,3 +45,29 @@ export const colorRuleType: Record<ERuleType, string> = {
 	[ERuleType.MIN_AGE]: 'orange',
 	[ERuleType.MAX_AGE]: 'volcano',
 };
+
+export enum ECurrency {
+	VND = 'VND',
+	USD = 'USD',
+	EUR = 'EUR',
+}
+
+export const currencyOptions = Object.values(ECurrency).map((v) => ({
+	value: v,
+	label: v,
+}));
+
+export enum ELoaiDoiTuong {
+	TOA_NHA = 'TOA_NHA',
+	PHONG = 'PHONG',
+}
+
+export const transLoaiDoiTuong: Record<ELoaiDoiTuong, string> = {
+	[ELoaiDoiTuong.TOA_NHA]: 'Tòa nhà',
+	[ELoaiDoiTuong.PHONG]: 'Phòng',
+};
+
+export const loaiDoiTuongOptions = Object.values(ELoaiDoiTuong).map((v) => ({
+	value: v,
+	label: transLoaiDoiTuong[v],
+}));
