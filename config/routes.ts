@@ -847,11 +847,11 @@ export default [
 				// access: 'accessFilter',
 				// maChucNang: 'cong-can-bo|ky-tuc-xa',
 				routes: [
-				{
-					name: 'Đợt đăng ký',
-					path: 'dot-dang-ky',
-					component: 'KyTucXa/DotDangKy',
-				}
+					{
+						name: 'Đợt đăng ký',
+						path: 'dot-dang-ky',
+						component: 'KyTucXa/DotDangKy',
+					}
 				],
 			},
 			//Ký túc xá
@@ -862,6 +862,11 @@ export default [
 				// access: 'accessFilter',
 				// maChucNang: 'cong-can-bo|ky-tuc-xa',
 				routes: [
+					{
+						name: 'Đợt đăng ký',
+						path: 'dot-dang-ky',
+						component: 'KyTucXa/DotDangKy',
+					},
 					{
 						name: 'Cấu hình khoản thu',
 						path: 'cau-hinh-khoan-thu',
