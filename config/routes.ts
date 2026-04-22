@@ -1,4 +1,4 @@
-﻿export default [
+export default [
 	{
 		path: '/user',
 		layout: false,
@@ -852,6 +852,31 @@
 					path: 'dot-dang-ky',
 					component: 'KyTucXa/DotDangKy',
 				}
+				],
+			},
+			//Ký túc xá
+			{
+				name: 'Ký túc xá',
+				path: 'ky-tuc-xa',
+				icon: 'BuildOutlined',
+				// access: 'accessFilter',
+				// maChucNang: 'cong-can-bo|ky-tuc-xa',
+				routes: [
+					{
+						name: 'Cấu hình khoản thu',
+						path: 'cau-hinh-khoan-thu',
+						component: 'KyTucXa/CauHinhKhoanThu',
+					},
+					{
+						name: 'Phòng',
+						path: 'phong-ky-tuc-xa',
+						component: 'KyTucXa/PhongKyTucXa',
+					},
+					{
+						name: 'Quy tắc đăng ký',
+						path: 'quy-tac-dang-ky',
+						component: 'KyTucXa/RuleDangKy',
+					},
 				],
 			},
 		],
