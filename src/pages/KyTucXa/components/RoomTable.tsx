@@ -1,6 +1,6 @@
+import TableStaticData from '@/components/Table/TableStaticData';
 import { EOperatorType } from '@/components/Table/constant';
-import { Table } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import type { IColumn } from '@/components/Table/typing';
 import React, { useEffect } from 'react';
 import { useModel } from 'umi';
 
@@ -25,7 +25,7 @@ const RoomTable: React.FC<{
 		getAllModel(false, undefined, undefined, filters as any).catch(() => {});
 	}, [JSON.stringify(toaNhaIds)]);
 
-	const columns: ColumnsType<any> = [
+	const columns: IColumn<any>[] = [
 		{
 			title: 'Tên phòng',
 			dataIndex: 'ten',
@@ -68,16 +68,19 @@ const RoomTable: React.FC<{
 	};
 
 	return (
-		<div className='room-table-no-checkbox-effect'>
-			<Table
-				rowKey={(rec) => rec.ma}
-				columns={columns}
-				dataSource={rooms}
-				loading={loading}
-				rowSelection={rowSelection}
-				pagination={{ pageSize: 10 }}
-			/>
-		</div>
+		<TableStaticData
+			data={rooms}
+			columns={columns}
+			loading={loading}
+			size='small'
+			hasTotal
+			otherProps={{
+				rowKey: (rec: any) => rec.ma,
+				rowSelection,
+				pagination: { pageSize: 10, showSizeChanger: false },
+				scroll: { x: 'max-content' },
+			}}
+		/>
 	);
 };
 
