@@ -1,19 +1,23 @@
 import MyDatePicker from '@/components/MyDatePicker';
 import FormItemKhoaNganh from '@/pages/DaoTaoV2/KhoaNganhDotDangKy/FormItemKhoaNganh';
 import SelectHocKy from '@/pages/HocKy/components/SelectHocKy';
+import RoomTable from '@/pages/KyTucXa/components/RoomTable';
+import SelectToaNha from '@/pages/KyTucXa/components/SelectToaNha';
 import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
 import { Button, Card, Col, Form, Input, Row } from 'antd';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useModel } from 'umi';
 
 const FormDotDangKyKTX = () => {
 	const [form] = Form.useForm();
 	const { record, visibleForm, edit, setVisibleForm, putModel, postModel, formSubmiting } = useModel('dotdangkyktx');
+	const [selectedToaNha, setSelectedToaNha] = useState<string | undefined>(undefined);
 
 	useEffect(() => {
 		if (!visibleForm) {
 			resetFieldsForm(form);
+			setSelectedToaNha(undefined);
 			return;
 		}
 
@@ -67,12 +71,23 @@ const FormDotDangKyKTX = () => {
 							<FormItemKhoaNganh showTrinhDo={false} showHinhThuc={false} />
 						</Form.Item>
 					</Col>
-					<Col xs={24}>
-						<Form.Item name='ghiChu' label='Ghi chú' rules={[...rules.text, ...rules.length(2000)]}>
-							<Input.TextArea rows={3} placeholder='Nhập ghi chú' />
+					<Col xs={24} md={12}>
+						<Form.Item name='toaNhaId' label='Tòa nhà'>
+							<SelectToaNha selectMa onChange={(id) => setSelectedToaNha(id)} />
 						</Form.Item>
 					</Col>
 				</Row>
+
+				{selectedToaNha ? (
+					<div style={{ marginTop: 12 }}>
+						<RoomTable toaNhaId={selectedToaNha} />
+					</div>
+				) : null}
+				<Col xs={24}>
+					<Form.Item name='ghiChu' label='Ghi chú' rules={[...rules.text, ...rules.length(2000)]}>
+						<Input.TextArea rows={3} placeholder='Nhập ghi chú' />
+					</Form.Item>
+				</Col>
 
 				<div className='form-footer'>
 					<Button loading={formSubmiting} htmlType='submit' type='primary'>

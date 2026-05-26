@@ -34,8 +34,16 @@ const FormItemKhoaNganh = (props: {
 
 	useEffect(() => {
 		if (!maKhoaList?.length && !maNganhList?.length) {
-			setDanhSach([]);
-			if (onChange && value?.length) onChange([]);
+			if (!value?.length) {
+				setDanhSach([]);
+				return;
+			}
+
+			const selectedFilter: TFilter<KhoaNganh.IRecord>[] = [
+				{ field: 'ma', values: value, operator: EOperatorType.INCLUDE },
+			];
+
+			getAllModel(undefined, undefined, khoaNganhCondition, selectedFilter);
 			return;
 		}
 		const filter: TFilter<KhoaNganh.IRecord>[] = [];
