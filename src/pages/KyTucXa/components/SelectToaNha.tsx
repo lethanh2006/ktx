@@ -3,8 +3,8 @@ import React, { useEffect } from 'react';
 import { useModel } from 'umi';
 
 const SelectToaNha = (props: {
-	value?: string;
-	onChange?: (id: string) => void;
+	value?: string | string[];
+	onChange?: (id: string | string[]) => void;
 	multiple?: boolean;
 	disabled?: boolean;
 	allowClear?: boolean;

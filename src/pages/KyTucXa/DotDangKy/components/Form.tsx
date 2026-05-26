@@ -12,27 +12,77 @@ import { useModel } from 'umi';
 const FormDotDangKyKTX = () => {
 	const [form] = Form.useForm();
 	const { record, visibleForm, edit, setVisibleForm, putModel, postModel, formSubmiting } = useModel('dotdangkyktx');
-	const [selectedToaNha, setSelectedToaNha] = useState<string | undefined>(undefined);
+	const [selectedToaNhaIds, setSelectedToaNhaIds] = useState<string[]>([]);
+	const [selectedPhongTheoToaNha, setSelectedPhongTheoToaNha] = useState<Record<string, string[]>>({});
+
+	const currentSelectedPhongKeys = selectedToaNhaIds.flatMap((maToaNha) => selectedPhongTheoToaNha[maToaNha] ?? []);
+
+	const { record: recordPhong, danhSach: danhSachPhong, getAllModel } = useModel('theodoitaisanvattu.phong');
+
+	useEffect(() => {
+		// Fetch phòng list when form becomes visible
+		if (visibleForm) {
+			getAllModel().catch((e) => console.log('getAllModel error', e));
+		}
+	}, [visibleForm]);
+
+	useEffect(() => {
+		console.log('recordPhong', recordPhong);
+		console.log('danhSachPhong', danhSachPhong);
+	}, [recordPhong, danhSachPhong]);
 
 	useEffect(() => {
 		if (!visibleForm) {
 			resetFieldsForm(form);
-			setSelectedToaNha(undefined);
+			setSelectedToaNhaIds([]);
+			setSelectedPhongTheoToaNha({});
 			return;
 		}
 
 		if (record?._id) {
+			const phongTheoToaNha = record?.phongTheoToaNha ?? [];
+			const toaNhaIds = [...new Set(phongTheoToaNha.map((item) => item.maToaNha).filter(Boolean))];
+			const selectedPhongMap = phongTheoToaNha.reduce<Record<string, string[]>>((acc, item) => {
+				acc[item.maToaNha] = item.dsPhong ?? [];
+				return acc;
+			}, {});
+
 			form.setFieldsValue({
 				...record,
 				maKhoaNganh: record?.maKhoaNganh ?? [],
+				toaNhaIds,
 			});
+			setSelectedToaNhaIds(toaNhaIds);
+			setSelectedPhongTheoToaNha(selectedPhongMap);
+		} else {
+			form.setFieldsValue({
+				maKhoaNganh: [],
+				toaNhaIds: [],
+			});
+			setSelectedToaNhaIds([]);
+			setSelectedPhongTheoToaNha({});
 		}
 	}, [record?._id, visibleForm]);
 
+	useEffect(() => {
+		setSelectedPhongTheoToaNha((prev) => {
+			const next = Object.fromEntries(
+				Object.entries(prev).filter(([maToaNha]) => selectedToaNhaIds.includes(maToaNha)),
+			);
+
+			return Object.keys(next).length === Object.keys(prev).length ? prev : next;
+		});
+	}, [JSON.stringify(selectedToaNhaIds)]);
+
 	const onFinish = async (values: DotDangKyKTX.IRecord) => {
+		const phongTheoToaNha = Object.entries(selectedPhongTheoToaNha)
+			.filter(([, dsPhong]) => dsPhong.length)
+			.map(([maToaNha, dsPhong]) => ({ maToaNha, dsPhong }));
+		const { toaNhaIds, ...restValues } = values as DotDangKyKTX.IRecord & { toaNhaIds?: string[] };
 		const payload: Partial<DotDangKyKTX.IRecord> = {
-			...values,
+			...restValues,
 			maKhoaNganh: values?.maKhoaNganh ?? [],
+			phongTheoToaNha,
 		};
 
 		if (edit) {
@@ -72,15 +122,43 @@ const FormDotDangKyKTX = () => {
 						</Form.Item>
 					</Col>
 					<Col xs={24} md={12}>
-						<Form.Item name='toaNhaId' label='Tòa nhà'>
-							<SelectToaNha selectMa onChange={(id) => setSelectedToaNha(id)} />
+						<Form.Item name='toaNhaIds' label='Tòa nhà'>
+							<SelectToaNha
+								multiple
+								selectMa
+								allowClear
+								onChange={(ids) => setSelectedToaNhaIds(Array.isArray(ids) ? ids : ids ? [ids] : [])}
+							/>
 						</Form.Item>
 					</Col>
 				</Row>
 
-				{selectedToaNha ? (
+				{selectedToaNhaIds.length ? (
 					<div style={{ marginTop: 12 }}>
-						<RoomTable toaNhaId={selectedToaNha} />
+						<RoomTable
+							toaNhaIds={selectedToaNhaIds}
+							selectedRowKeys={currentSelectedPhongKeys}
+							onChangeSelectedKeys={(_keys, rows) => {
+								const nextSelectedMap = rows.reduce<Record<string, string[]>>((acc, row: any) => {
+									const maToaNha = row?.maToaNha ?? row?.toaNha?.ma;
+									if (!maToaNha) return acc;
+
+									if (!acc[maToaNha]) acc[maToaNha] = [];
+									acc[maToaNha].push(row?.ma);
+									return acc;
+								}, {});
+
+								setSelectedPhongTheoToaNha((prev) => {
+									const merged = { ...prev };
+									selectedToaNhaIds.forEach((maToaNha) => {
+										if (nextSelectedMap[maToaNha]) merged[maToaNha] = nextSelectedMap[maToaNha];
+										else delete merged[maToaNha];
+									});
+
+									return merged;
+								});
+							}}
+						/>
 					</div>
 				) : null}
 				<Col xs={24}>
