@@ -1,8 +1,8 @@
 import MyDatePicker from '@/components/MyDatePicker';
 import FormItemKhoaNganh from '@/pages/DaoTaoV2/KhoaNganhDotDangKy/FormItemKhoaNganh';
 import SelectHocKy from '@/pages/HocKy/components/SelectHocKy';
-import RoomTable from '@/pages/KyTucXa/components/RoomTable';
-import SelectToaNha from '@/pages/KyTucXa/components/SelectToaNha';
+import RoomTable from '@/pages/KyTucXa/DotDangKy/components/RoomTable';
+import SelectToaNha from '@/pages/KyTucXa/DotDangKy/components/SelectToaNha';
 import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
 import { Button, Card, Col, Form, Input, Row } from 'antd';
@@ -13,76 +13,71 @@ const FormDotDangKyKTX = () => {
 	const [form] = Form.useForm();
 	const { record, visibleForm, edit, setVisibleForm, putModel, postModel, formSubmiting } = useModel('dotdangkyktx');
 	const [selectedToaNhaIds, setSelectedToaNhaIds] = useState<string[]>([]);
-	const [selectedPhongTheoToaNha, setSelectedPhongTheoToaNha] = useState<Record<string, string[]>>({});
+	const [selectedPhongIds, setSelectedPhongIds] = useState<string[]>([]);
 
-	const currentSelectedPhongKeys = selectedToaNhaIds.flatMap((maToaNha) => selectedPhongTheoToaNha[maToaNha] ?? []);
+	const { danhSach: allPhong, getAllModel: getAllPhong } = useModel('theodoitaisanvattu.phong');
 
-	const { record: recordPhong, danhSach: danhSachPhong, getAllModel } = useModel('theodoitaisanvattu.phong');
+	const { getAllModel: getAllToaNha } = useModel('theodoitaisanvattu.toanha');
 
 	useEffect(() => {
-		// Fetch phòng list when form becomes visible
 		if (visibleForm) {
-			getAllModel().catch((e) => console.log('getAllModel error', e));
+			getAllPhong();
+			getAllToaNha();
 		}
 	}, [visibleForm]);
-
-	useEffect(() => {
-		console.log('recordPhong', recordPhong);
-		console.log('danhSachPhong', danhSachPhong);
-	}, [recordPhong, danhSachPhong]);
 
 	useEffect(() => {
 		if (!visibleForm) {
 			resetFieldsForm(form);
 			setSelectedToaNhaIds([]);
-			setSelectedPhongTheoToaNha({});
+			setSelectedPhongIds([]);
 			return;
 		}
 
 		if (record?._id) {
-			const phongTheoToaNha = record?.phongTheoToaNha ?? [];
-			const toaNhaIds = [...new Set(phongTheoToaNha.map((item) => item.maToaNha).filter(Boolean))];
-			const selectedPhongMap = phongTheoToaNha.reduce<Record<string, string[]>>((acc, item) => {
-				acc[item.maToaNha] = item.dsPhong ?? [];
-				return acc;
-			}, {});
+			const danhSachToaNha = record?.danhSachToaNha ?? [];
+			const danhSachPhong = record?.danhSachPhong ?? [];
 
 			form.setFieldsValue({
 				...record,
 				maKhoaNganh: record?.maKhoaNganh ?? [],
-				toaNhaIds,
+				danhSachToaNha,
 			});
-			setSelectedToaNhaIds(toaNhaIds);
-			setSelectedPhongTheoToaNha(selectedPhongMap);
+			setSelectedToaNhaIds(danhSachToaNha);
+			setSelectedPhongIds(danhSachPhong);
 		} else {
 			form.setFieldsValue({
 				maKhoaNganh: [],
-				toaNhaIds: [],
+				danhSachToaNha: [],
 			});
 			setSelectedToaNhaIds([]);
-			setSelectedPhongTheoToaNha({});
+			setSelectedPhongIds([]);
 		}
 	}, [record?._id, visibleForm]);
 
 	useEffect(() => {
-		setSelectedPhongTheoToaNha((prev) => {
-			const next = Object.fromEntries(
-				Object.entries(prev).filter(([maToaNha]) => selectedToaNhaIds.includes(maToaNha)),
-			);
+		if (!visibleForm) return;
+		if (!allPhong || allPhong.length === 0) return;
 
-			return Object.keys(next).length === Object.keys(prev).length ? prev : next;
+		setSelectedPhongIds((prev) => {
+			const filtered = prev.filter((phongMa) => {
+				const phong = allPhong.find((p: any) => p.ma === phongMa);
+				if (!phong) return true;
+				const maToaNha = phong.maToaNha ?? phong.toaNha?.ma;
+				return maToaNha && selectedToaNhaIds.includes(maToaNha);
+			});
+			if (JSON.stringify(filtered) === JSON.stringify(prev)) return prev;
+			return filtered;
 		});
-	}, [JSON.stringify(selectedToaNhaIds)]);
+	}, [selectedToaNhaIds, allPhong, visibleForm]);
 
 	const onFinish = async (values: DotDangKyKTX.IRecord) => {
-		const phongTheoToaNha = Object.entries(selectedPhongTheoToaNha)
-			.filter(([, dsPhong]) => dsPhong.length)
-			.map(([maToaNha, dsPhong]) => ({ maToaNha, dsPhong }));
-		const { toaNhaIds, ...restValues } = values as DotDangKyKTX.IRecord & { toaNhaIds?: string[] };
+		const { danhSachToaNha, ...restValues } = values as DotDangKyKTX.IRecord;
 		const payload: Partial<DotDangKyKTX.IRecord> = {
 			...restValues,
 			maKhoaNganh: values?.maKhoaNganh ?? [],
-			phongTheoToaNha,
+			danhSachToaNha: selectedToaNhaIds,
+			danhSachPhong: selectedPhongIds,
 		};
 
 		if (edit) {
@@ -122,7 +117,7 @@ const FormDotDangKyKTX = () => {
 						</Form.Item>
 					</Col>
 					<Col xs={24} md={12}>
-						<Form.Item name='toaNhaIds' label='Tòa nhà'>
+						<Form.Item name='danhSachToaNha' label='Tòa nhà'>
 							<SelectToaNha
 								multiple
 								selectMa
@@ -137,26 +132,9 @@ const FormDotDangKyKTX = () => {
 					<div style={{ marginTop: 12 }}>
 						<RoomTable
 							toaNhaIds={selectedToaNhaIds}
-							selectedRowKeys={currentSelectedPhongKeys}
-							onChangeSelectedKeys={(_keys, rows) => {
-								const nextSelectedMap = rows.reduce<Record<string, string[]>>((acc, row: any) => {
-									const maToaNha = row?.maToaNha ?? row?.toaNha?.ma;
-									if (!maToaNha) return acc;
-
-									if (!acc[maToaNha]) acc[maToaNha] = [];
-									acc[maToaNha].push(row?.ma);
-									return acc;
-								}, {});
-
-								setSelectedPhongTheoToaNha((prev) => {
-									const merged = { ...prev };
-									selectedToaNhaIds.forEach((maToaNha) => {
-										if (nextSelectedMap[maToaNha]) merged[maToaNha] = nextSelectedMap[maToaNha];
-										else delete merged[maToaNha];
-									});
-
-									return merged;
-								});
+							selectedRowKeys={selectedPhongIds}
+							onChangeSelectedKeys={(keys) => {
+								setSelectedPhongIds(keys);
 							}}
 						/>
 					</div>

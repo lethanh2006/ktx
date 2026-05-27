@@ -6,10 +6,8 @@ declare module DotDangKyKTX {
         thoiGianBatDau: string;
         thoiGianKetThuc: string;
         maKhoaNganh: string[];
-        phongTheoToaNha?: {
-            maToaNha: string;
-            dsPhong: string[];
-        }[];
+        danhSachToaNha: string[]
+        danhSachPhong: string[]
         ghiChu: string;
         soLuongDon: number;
     }
