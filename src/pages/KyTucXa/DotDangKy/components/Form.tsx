@@ -19,6 +19,10 @@ const FormDotDangKyKTX = () => {
 
 	const { getAllModel: getAllToaNha } = useModel('theodoitaisanvattu.toanha');
 
+	const selectedPhongRowKeys = allPhong
+		.filter((phong: any) => selectedPhongIds.includes(phong.ma))
+		.map((phong: any) => phong._id);
+
 	useEffect(() => {
 		if (visibleForm) {
 			getAllPhong();
@@ -132,9 +136,13 @@ const FormDotDangKyKTX = () => {
 					<div style={{ marginTop: 12 }}>
 						<RoomTable
 							toaNhaIds={selectedToaNhaIds}
-							selectedRowKeys={selectedPhongIds}
+							selectedRowKeys={selectedPhongRowKeys}
 							onChangeSelectedKeys={(keys) => {
-								setSelectedPhongIds(keys);
+								setSelectedPhongIds(
+									keys
+										.map((key) => allPhong.find((phong: any) => phong._id === key)?.ma)
+										.filter((ma): ma is string => !!ma),
+								);
 							}}
 						/>
 					</div>
